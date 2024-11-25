@@ -81,12 +81,16 @@ export function ClientQuoteView() {
   };
 
   const subtotal = calculateSubtotal();
+  const discountRate = quote.adjustmentType === 'discount' ? quote.adjustmentPercentage || 0 : 0;
+  const discountAmount = (subtotal * discountRate) / 100;
+  const subtotalAfterDiscount = subtotal - discountAmount;
   const taxRate = 0.13;
-  const tax = subtotal * taxRate;
-  const total = subtotal + tax;
+  const tax = subtotalAfterDiscount * taxRate;
+  const total = subtotalAfterDiscount + tax;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8" style={{ fontFamily: styles.fontFamily }}>
+      {/* Header section remains the same */}
       {template.sections.header.enabled && (
         <div className="max-w-5xl mx-auto">
           <div className="bg-white shadow-xl rounded-xl overflow-hidden">
@@ -132,6 +136,7 @@ export function ClientQuoteView() {
       )}
 
       <div className="max-w-5xl mx-auto mt-8 space-y-8">
+        {/* Client Info and Quote Details sections remain the same */}
         {template.sections.clientInfo.enabled && (
           <div className="bg-white shadow-lg rounded-xl overflow-hidden">
             <div className="p-8">
@@ -163,6 +168,7 @@ export function ClientQuoteView() {
           </div>
         )}
 
+        {/* Spaces section remains the same */}
         {template.sections.quoteDetails.enabled && quote.spaces.map((space) => (
           <div key={space.id} className="bg-white shadow-lg rounded-xl overflow-hidden">
             <div className="bg-gray-50 px-8 py-4 border-b border-gray-200">
@@ -203,6 +209,7 @@ export function ClientQuoteView() {
           </div>
         ))}
 
+        {/* Updated Totals section with discount */}
         {template.sections.totals.enabled && (
           <div className="bg-white shadow-lg rounded-xl overflow-hidden">
             <div className="p-8">
@@ -213,6 +220,18 @@ export function ClientQuoteView() {
                       <div className="flex justify-between text-sm">
                         <dt className="text-gray-500">Subtotal</dt>
                         <dd className="text-gray-900 font-medium">${subtotal.toFixed(2)}</dd>
+                      </div>
+                    )}
+                    {discountRate > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <dt className="text-gray-500">Discount ({discountRate}%)</dt>
+                        <dd className="text-green-600 font-medium">-${discountAmount.toFixed(2)}</dd>
+                      </div>
+                    )}
+                    {discountRate > 0 && (
+                      <div className="flex justify-between text-sm border-t border-gray-100 pt-2">
+                        <dt className="text-gray-500">Subtotal after discount</dt>
+                        <dd className="text-gray-900 font-medium">${subtotalAfterDiscount.toFixed(2)}</dd>
                       </div>
                     )}
                     {template.sections.totals.showTax && (
@@ -236,7 +255,7 @@ export function ClientQuoteView() {
           </div>
         )}
 
-        {/* Our Commitments */}
+        {/* Rest of the sections remain the same */}
         <div className="bg-white shadow-lg rounded-xl overflow-hidden">
           <div className="p-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">Our Commitments to You</h2>
