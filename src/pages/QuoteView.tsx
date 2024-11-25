@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Edit2, Download } from 'lucide-react';
 import { QuoteData } from '../services/quoteService';
-import { getQuoteById, updateQuote } from '../services/quoteService';
+import { getQuoteById } from '../services/quoteService';
 import { getProducts, getMaterials } from '../services/catalogService';
 import { getPresetValues } from '../services/presetService';
 import { Product, Material } from '../types/catalog';
@@ -14,16 +14,12 @@ export function QuoteView() {
   const [products, setProducts] = useState<Product[]>([]);
   const [materials, setMaterials] = useState<Material[]>([]);
   const [taxRate, setTaxRate] = useState(0);
-  const [adjustmentType, setAdjustmentType] = useState<'discount' | 'surcharge'>('discount');
-  const [adjustmentPercentage, setAdjustmentPercentage] = useState(0);
 
   useEffect(() => {
     if (id) {
       const quoteData = getQuoteById(id);
       if (quoteData) {
         setQuote(quoteData);
-        setAdjustmentType(quoteData.adjustmentType || 'discount');
-        setAdjustmentPercentage(quoteData.adjustmentPercentage || 0);
       } else {
         navigate('/quotes');
       }
@@ -46,32 +42,15 @@ export function QuoteView() {
     return material?.name || 'Default';
   };
 
+  const formatDimensions = (item: any) => {
+    return `${item.height}"H x ${item.width}"W x ${item.depth}"D`;
+  };
+
   const calculateSubtotal = () => {
     return quote.spaces.reduce((sum, space) => 
       sum + space.items.reduce((itemSum, item) => itemSum + item.price, 0), 
       0
     );
-  };
-
-  const handleAdjustment = () => {
-    if (!quote) return;
-
-    const subtotal = calculateSubtotal();
-    const multiplier = adjustmentType === 'discount' 
-      ? (100 - adjustmentPercentage) / 100 
-      : (100 + adjustmentPercentage) / 100;
-    const adjustedSubtotal = subtotal * multiplier;
-    const tax = adjustedSubtotal * taxRate;
-    const total = adjustedSubtotal + tax;
-
-    const updatedQuote = updateQuote(quote.id!, {
-      ...quote,
-      adjustmentType,
-      adjustmentPercentage,
-      adjustedTotal: adjustedSubtotal,
-      total
-    });
-    setQuote(updatedQuote);
   };
 
   const subtotal = calculateSubtotal();
@@ -155,9 +134,7 @@ export function QuoteView() {
                   <tr>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Material</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Width</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Height</th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Depth</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dimensions</th>
                     <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Price</th>
                   </tr>
                 </thead>
@@ -171,13 +148,7 @@ export function QuoteView() {
                         {getMaterialName(item.material)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-900">
-                        {item.width}"
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-900">
-                        {item.height}"
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-900">
-                        {item.depth}"
+                        {formatDimensions(item)}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-900 text-right">
                         ${item.price.toFixed(2)}
@@ -191,54 +162,7 @@ export function QuoteView() {
         ))}
 
         <div className="p-6">
-          <div className="flex justify-between items-start">
-            <div className="w-64">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Price Adjustment
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Type
-                  </label>
-                  <select
-                    value={adjustmentType}
-                    onChange={(e) =>
-                      setAdjustmentType(e.target.value as 'discount' | 'surcharge')
-                    }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  >
-                    <option value="discount">Discount</option>
-                    <option value="surcharge">Surcharge</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Percentage
-                  </label>
-                  <div className="mt-1 flex items-center">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={adjustmentPercentage}
-                      onChange={(e) =>
-                        setAdjustmentPercentage(Number(e.target.value))
-                      }
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    />
-                    <span className="ml-2">%</span>
-                  </div>
-                </div>
-                <button
-                  onClick={handleAdjustment}
-                  className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-                >
-                  Apply Adjustment
-                </button>
-              </div>
-            </div>
-
+          <div className="flex justify-end">
             <div className="w-64">
               <dl className="space-y-3">
                 <div className="flex justify-between text-sm">
