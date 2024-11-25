@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, Download, Plus, Trash2, Eye } from 'lucide-react';
+import { Mail, Download, Plus, Trash2, Eye, Link } from 'lucide-react';
 import { Order } from '../../types/order';
 import { generateReceipt, sendReceipt, deleteReceipt, downloadReceipt } from '../../services/orderService';
 import { ReceiptPreview } from './ReceiptPreview';
@@ -65,6 +65,12 @@ export function ReceiptManager({ order, onUpdate }: ReceiptManagerProps) {
       const updatedOrder = deleteReceipt(order.id, receiptId);
       onUpdate(updatedOrder);
     }
+  };
+
+  const handleCopyReceiptLink = (receiptId: string) => {
+    const url = `${window.location.origin}/client/receipt/${order.id}/${receiptId}`;
+    navigator.clipboard.writeText(url);
+    alert('Receipt link copied to clipboard!');
   };
 
   return (
@@ -163,6 +169,13 @@ export function ReceiptManager({ order, onUpdate }: ReceiptManagerProps) {
                         title={!order.email ? 'Client email is missing' : 'Send Receipt'}
                       >
                         <Mail className={`h-4 w-4 ${sendingReceiptId === receipt.id ? 'animate-spin' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => handleCopyReceiptLink(receipt.id)}
+                        className="text-gray-600 hover:text-gray-900"
+                        title="Copy Receipt Link"
+                      >
+                        <Link className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDownloadReceipt(receipt.id)}

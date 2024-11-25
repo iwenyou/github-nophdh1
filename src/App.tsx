@@ -11,6 +11,7 @@ import { QuoteView } from './pages/QuoteView';
 import { QuoteEdit } from './pages/QuoteEdit';
 import { Login } from './pages/Login';
 import { ClientQuoteView } from './pages/ClientQuoteView';
+import { ClientReceiptView } from './pages/ClientReceiptView';
 import { NotFound } from './pages/NotFound';
 import { Orders } from './pages/Orders';
 import { OrderDetail } from './pages/OrderDetail';
@@ -21,8 +22,9 @@ export function App() {
   return (
     <Router>
       <Routes>
-        {/* Client Quote View - No Layout */}
+        {/* Client Views - No Layout */}
         <Route path="/client/quote/:id" element={<ClientQuoteView />} />
+        <Route path="/client/receipt/:orderId/:receiptId" element={<ClientReceiptView />} />
         <Route path="/404" element={<NotFound />} />
         
         {/* Admin Routes with Layout */}
