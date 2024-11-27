@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Edit2, Download } from 'lucide-react';
+import { Edit2, Download, Eye } from 'lucide-react';
 import { QuoteData } from '../services/quoteService';
 import { getQuoteById } from '../services/quoteService';
 import { getProducts, getMaterials } from '../services/catalogService';
@@ -58,6 +58,10 @@ export function QuoteView() {
   const tax = adjustedSubtotal * taxRate;
   const total = adjustedSubtotal + tax;
 
+  const handlePreview = () => {
+    window.open(`/client/quote/${id}`, '_blank');
+  };
+
   return (
     <div className="max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
@@ -68,6 +72,13 @@ export function QuoteView() {
           </p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={handlePreview}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Preview Client View
+          </button>
           <button
             onClick={() => navigate(`/quotes/${id}/edit`)}
             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
