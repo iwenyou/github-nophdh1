@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id          String     @id @default(uuid())
+  name        String
+  type        String
+  unitCost    Float
+  description String?
+  categoryId  String
+  category    Category   @relation(fields: [categoryId], references: [id])
+  materials   Material[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Material {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Quote {
+  id                 String   @id @default(uuid())
+  clientName         String
+  email              String
+  phone              String
+  projectName        String
+  installationAddress String
+  status             String
+  total              Float
+  adjustmentType     String?
+  adjustmentPercentage Float?
+  adjustedTotal      Float?
+  spaces             Space[]
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Space {
+  id       String       @id @default(uuid())
+  name     String
+  quoteId  String
+  quote    Quote        @relation(fields: [quoteId], references: [id])
+  items    CabinetItem[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model CabinetItem {
+  id        String   @id @default(uuid())
+  productId String?
+  material  String?
+  width     Float
+  height    Float
+  depth     Float
+  price     Float
+  spaceId   String
+  space     Space    @relation(fields: [spaceId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
